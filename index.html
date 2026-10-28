@@ -1,0 +1,183 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="description" content="高中立体几何交互式 3D 可视化工具" />
+  <title>立体几何实验室</title>
+  <link rel="stylesheet" href="styles.css?v=9" />
+  <link rel="stylesheet" href="analytic.css?v=8" />
+</head>
+<body>
+  <header class="topbar">
+    <div class="brand">
+      <div class="brand-mark" aria-hidden="true"><span></span><span></span><span></span></div>
+      <div><h1>立体几何实验室</h1><p>把空间关系，转到眼前</p></div>
+    </div>
+    <div class="top-actions">
+      <button class="ghost mobile-only" id="modelDrawerBtn" aria-controls="modelPanel" aria-expanded="false">模型</button>
+      <button class="ghost mobile-only" id="toolsDrawerBtn" aria-controls="toolsPanel" aria-expanded="false">工具</button>
+      <button class="ghost" id="resetView">自适应视野</button>
+      <button class="ghost" id="importBtn">导入作图</button>
+      <button class="primary" id="exportBtn">保存作图</button>
+      <input id="importFile" type="file" accept="application/json,.json" hidden />
+    </div>
+  </header>
+  <div class="mode-switch" id="modeSwitch" aria-label="学习模式">
+    <button class="active" data-workspace="solid">立体几何</button>
+    <button data-workspace="analytic">解析几何</button>
+  </div>
+
+  <main class="workspace" id="solidWorkspace">
+    <aside class="panel left-panel" id="modelPanel">
+      <button class="panel-close mobile-only" data-close-panel aria-label="关闭模型面板">×</button>
+      <div class="panel-heading"><span class="eyebrow">01 / 模型</span><h2>选择几何体</h2></div>
+      <div class="shape-grid" id="shapeGrid" aria-label="几何体列表"></div>
+
+      <div class="section-rule"></div>
+      <div class="panel-heading compact"><span class="eyebrow">02 / 尺寸</span><h2>调整参数</h2></div>
+      <div class="controls" id="parameterControls"></div>
+      <div class="param-error" id="parameterError" role="alert"></div>
+
+      <div class="custom-box">
+        <div><strong>任意多面体</strong><span>粘贴顶点和面数据</span></div>
+        <button class="mini" id="customBtn">打开编辑器</button>
+      </div>
+    </aside>
+
+    <section class="stage-card">
+      <div class="stage-toolbar">
+        <div class="segmented" id="projectionToggle">
+          <button data-mode="perspective">透视</button>
+          <button data-mode="oblique" class="active">斜二测</button>
+          <button data-mode="ortho">正投影</button>
+        </div>
+        <div class="view-presets" aria-label="标准视图">
+          <button data-view="front">正视</button><button data-view="side">侧视</button><button data-view="top">俯视</button>
+        </div>
+      </div>
+      <div class="canvas-wrap" id="canvasWrap">
+        <svg id="geometryCanvas" role="img" aria-label="可旋转的立体几何图形"></svg>
+        <div class="axis-widget" aria-hidden="true"><span class="axis-z">z</span><span class="axis-y">y</span><span class="axis-x">x</span></div>
+        <div class="hint"><span class="mouse-icon">↻</span>斜二测画法（45°固定视角）· 滚轮缩放 · 点击顶点选中</div>
+        <div class="selection-status" id="selectionStatus">选择两个顶点，可作辅助线</div>
+        <div class="connect-box"><input id="connectA" placeholder="点" maxlength="4" aria-label="第一个点字母"/><span>—</span><input id="connectB" placeholder="点" maxlength="4" aria-label="第二个点字母"/><button id="connectGo">连接</button></div>
+        <div class="relation-panel" id="relationPanel"></div>
+      </div>
+      <div class="stage-footer">
+        <div><span class="dot blue"></span><span id="vertexCount">8 个顶点</span></div>
+        <div><span class="dot dark"></span><span id="edgeCount">12 条棱</span></div>
+        <div><span class="dot amber"></span><span id="faceCount">6 个面</span></div>
+        <div class="zoom-control"><span>−</span><input id="zoomSlider" type="range" min="45" max="180" value="100" aria-label="缩放"/><span>＋</span></div>
+      </div>
+    </section>
+
+    <aside class="panel right-panel" id="toolsPanel">
+      <button class="panel-close mobile-only" data-close-panel aria-label="关闭工具面板">×</button>
+      <div class="panel-heading"><span class="eyebrow">03 / 显示</span><h2>观察工具</h2></div>
+      <div class="toggle-list">
+        <label><div><span class="tool-icon vertices">●</span><span><strong>顶点与标注</strong><small>显示字母名称</small></span></div><input id="showVertices" type="checkbox" checked><i></i></label>
+        <label><div><span class="tool-icon edges">╱</span><span><strong>棱线</strong><small>实线 / 虚线</small></span></div><input id="showEdges" type="checkbox" checked><i></i></label>
+        <label><div><span class="tool-icon faces">◇</span><span><strong>面填充</strong><small>区分可见平面</small></span></div><input id="showFaces" type="checkbox" checked><i></i></label>
+        <label><div><span class="tool-icon hidden">┄</span><span><strong>隐藏棱</strong><small>用虚线表示</small></span></div><input id="showHidden" type="checkbox" checked><i></i></label>
+        <label><div><span class="tool-icon grid">⌗</span><span><strong>参考坐标</strong><small>空间方向辅助</small></span></div><input id="showAxes" type="checkbox"><i></i></label>
+      </div>
+
+      <div class="section-rule"></div>
+      <div class="panel-heading compact"><span class="eyebrow">04 / 作图</span><h2>辅助构造</h2></div>
+      <div class="construction-list">
+        <button id="addSegment"><span class="construct-symbol">／</span><span><strong>连接两点</strong><small>顶点、圆弧点、任意点均可连接</small></span><b>＋</b></button>
+        <button id="addMidpoint"><span class="construct-symbol">×</span><span><strong>作中点</strong><small>选中一条辅助线</small></span><b>＋</b></button>
+        <button id="addTrisection"><span class="construct-symbol">⋔</span><span><strong>作三等分点</strong><small>上三分 / 下三分两个点</small></span><b>＋</b></button>
+        <button id="addPoint"><span class="construct-symbol">∗</span><span><strong>添加任意点</strong><small>按比例取点 / 输入空间坐标</small></span><b>＋</b></button>
+        <button id="addArcPoint" aria-pressed="false"><span class="construct-symbol">⌒</span><span><strong>圆弧取点</strong><small>点击圆周自动吸附，只添加一个点</small></span><b>＋</b></button>
+        <button id="removeSegment"><span class="construct-symbol">✕</span><span><strong>删除线段</strong><small>点击图中辅助线选中后删除</small></span><b>－</b></button>
+        <button id="clearConstructions"><span class="construct-symbol">↺</span><span><strong>清除辅助构造</strong><small>恢复原始模型</small></span></button>
+      </div>
+
+      <div class="tip-card"><span>解题提示</span><p id="modelTip">旋转图形，观察平行棱与对角线的空间位置关系。</p></div>
+    </aside>
+  </main>
+
+  <main class="analytic-workspace hidden-mode" id="analyticWorkspace">
+    <aside class="panel analytic-left">
+      <div class="panel-heading"><span class="eyebrow">01 / 曲线</span><h2>选择解析对象</h2></div>
+      <div class="curve-grid" id="curveGrid">
+        <button class="active" data-curve="line">直线</button><button data-curve="circle">圆</button>
+        <button data-curve="ellipse">椭圆</button><button data-curve="hyperbola">双曲线</button>
+        <button data-curve="parabola">抛物线</button><button data-curve="general">一般二次曲线</button>
+      </div>
+      <div class="section-rule"></div>
+      <div class="panel-heading compact"><span class="eyebrow">02 / 方程</span><h2 id="curveTitle">直线 Ax + By + C = 0</h2></div>
+      <div class="analytic-params" id="analyticParams"></div>
+      <div class="equation-card"><small>当前方程</small><strong id="currentEquation"></strong></div>
+      <div class="curve-error" id="curveError" role="alert"></div>
+      <div class="object-actions"><button class="primary" id="addCurveObject">＋ 加入画布</button><button class="ghost" id="newCurveDraft">新建</button></div>
+      <div class="section-rule compact-rule"></div>
+      <div class="object-list-head"><span class="eyebrow">画板对象</span><button id="clearCurveObjects">清空曲线</button></div>
+      <div class="object-list" id="objectList"></div>
+    </aside>
+
+    <section class="stage-card analytic-stage">
+      <div class="stage-toolbar">
+        <div><span class="eyebrow">坐标平面</span><strong class="analytic-heading" id="analyticInteractionHint">平移模式 · 拖动画布 · 滚轮缩放</strong></div>
+        <div class="analytic-stage-actions">
+          <button class="ghost compact-btn add-point-toggle" id="toggleClickAdd" type="button" aria-pressed="false">＋ 添加一个点</button>
+          <button class="ghost compact-btn" id="undoAnalyticPoint" type="button" disabled>撤销最后一点</button>
+          <button class="ghost compact-btn" id="analyticReset" type="button">自适应视野</button>
+        </div>
+      </div>
+      <div class="analytic-canvas-wrap" id="analyticCanvasWrap">
+        <svg id="analyticCanvas" role="img" aria-label="解析几何坐标图像"></svg>
+        <div class="analytic-readout" id="analyticReadout">x = 0，y = 0</div>
+      </div>
+      <div class="analytic-footer"><span id="analyticRange">视野：−10 到 10</span><span id="analyticPointCount">0 个自定义点</span><button id="clearAnalyticPoints">清除点</button></div>
+    </section>
+
+    <aside class="panel analytic-right">
+      <div class="panel-heading"><span class="eyebrow">03 / 点与直线</span><h2>解析计算器</h2></div>
+      <div class="calc-card"><strong>两点 P、Q</strong><div class="coord-inputs"><label>P<input id="px" type="number" value="1" step="0.1"><input id="py" type="number" value="2" step="0.1"></label><label>Q<input id="qx" type="number" value="4" step="0.1"><input id="qy" type="number" value="6" step="0.1"></label></div><div class="calc-result" id="pointResults"></div></div>
+      <div class="calc-card"><strong>点 P 到直线 L₁</strong><div class="line-inputs"><label>A<input id="l1a" type="number" value="1" step="0.1"></label><label>B<input id="l1b" type="number" value="-1" step="0.1"></label><label>C<input id="l1c" type="number" value="0" step="0.1"></label></div><div class="calc-result" id="distanceResult"></div></div>
+      <div class="calc-card"><strong>直线 L₁ 与 L₂</strong><div class="line-inputs"><label>A₂<input id="l2a" type="number" value="1" step="0.1"></label><label>B₂<input id="l2b" type="number" value="1" step="0.1"></label><label>C₂<input id="l2c" type="number" value="-4" step="0.1"></label></div><div class="calc-result" id="lineResults"></div></div>
+      <div class="calc-card"><strong>画板对象求交</strong><div class="object-intersection"><select id="intersectionObjectA" aria-label="第一个画板对象"></select><select id="intersectionObjectB" aria-label="第二个画板对象"></select><button id="intersectObjects">求交并加点</button></div><div class="calc-result" id="objectIntersectionResult"></div></div>
+      <div class="calc-card feature-card"><strong>曲线性质</strong><div class="calc-result" id="curveFeatures"></div></div>
+      <div class="calc-card"><strong>精确添加点</strong><div class="add-analytic-point"><input id="analyticPointName" value="A" maxlength="6" aria-label="点名称"><input id="analyticPointX" type="number" value="0" step="0.1" aria-label="点横坐标"><input id="analyticPointY" type="number" value="0" step="0.1" aria-label="点纵坐标"><button id="addAnalyticPoint">添加</button></div><div class="point-connect"><select id="segmentPointA" aria-label="线段第一个点"></select><span>—</span><select id="segmentPointB" aria-label="线段第二个点"></select><button id="addAnalyticSegment">连接线段</button></div></div>
+    </aside>
+  </main>
+  <button class="drawer-overlay" id="drawerOverlay" aria-label="关闭侧边面板"></button>
+
+  <dialog id="customDialog">
+    <form method="dialog" class="dialog-card">
+      <div class="dialog-title"><div><span class="eyebrow">自定义模型</span><h2>输入任意多面体</h2></div><button value="cancel" aria-label="关闭">×</button></div>
+      <p>使用 JSON 描述顶点与面。每个面填写顶点编号（从 0 开始），程序会自动生成棱。</p>
+      <textarea id="customJson" spellcheck="false"></textarea>
+      <div class="dialog-error" id="dialogError"></div>
+      <div class="dialog-actions"><button value="cancel" class="ghost">取消</button><button type="button" class="primary" id="applyCustom">生成图形</button></div>
+    </form>
+  </dialog>
+
+  <dialog id="pointDialog">
+    <form method="dialog" class="dialog-card point-dialog">
+      <div class="dialog-title"><div><span class="eyebrow">辅助构造</span><h2>添加任意点</h2></div><button value="cancel" aria-label="关闭加点窗口">×</button></div>
+      <div class="point-tabs" role="tablist">
+        <button type="button" class="active" data-point-mode="ratio" role="tab" aria-selected="true">在线段上取点</button>
+        <button type="button" data-point-mode="coordinate" role="tab" aria-selected="false">输入空间坐标</button>
+      </div>
+      <div id="ratioFields" class="point-fields">
+        <p>在最近选中的辅助线上取点。t=0.5 是中点，t=0.25 表示从第一个端点起四分之一处。</p>
+        <label>位置比例 t <input id="pointRatio" type="number" value="0.5" min="0" max="1" step="0.05" /></label>
+      </div>
+      <div id="coordinateFields" class="point-fields hidden">
+        <p>输入点在当前模型坐标系中的位置，可以继续选中它连接辅助线。</p>
+        <div class="coord-grid"><label>x <input id="pointX" type="number" value="0" step="0.1" /></label><label>y <input id="pointY" type="number" value="0" step="0.1" /></label><label>z <input id="pointZ" type="number" value="0" step="0.1" /></label></div>
+      </div>
+      <label class="point-name">点名称 <input id="pointName" value="P" maxlength="8" /></label>
+      <div class="dialog-error" id="pointError" role="alert"></div>
+      <div class="dialog-actions"><button value="cancel" class="ghost">取消</button><button type="button" class="primary" id="applyPoint">添加点</button></div>
+    </form>
+  </dialog>
+
+  <script src="app.js?v=9"></script>
+  <script src="analytic.js?v=9"></script>
+</body>
+</html>
