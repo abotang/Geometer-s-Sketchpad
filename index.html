@@ -7,6 +7,10 @@
   <title>立体几何实验室</title>
   <link rel="stylesheet" href="styles.css?v=9" />
   <link rel="stylesheet" href="analytic.css?v=8" />
+  <link rel="stylesheet" href="study.css?v=1" />
+  <link rel="stylesheet" href="wps-host.css?v=1" />
+  <link rel="stylesheet" href="presentation.css?v=4" />
+  <link rel="stylesheet" href="measurements.css?v=1" />
 </head>
 <body>
   <header class="topbar">
@@ -15,6 +19,7 @@
       <div><h1>立体几何实验室</h1><p>把空间关系，转到眼前</p></div>
     </div>
     <div class="top-actions">
+      <button class="ghost" id="presentationToggle" aria-pressed="false">全屏讲解</button>
       <button class="ghost mobile-only" id="modelDrawerBtn" aria-controls="modelPanel" aria-expanded="false">模型</button>
       <button class="ghost mobile-only" id="toolsDrawerBtn" aria-controls="toolsPanel" aria-expanded="false">工具</button>
       <button class="ghost" id="resetView">自适应视野</button>
@@ -56,13 +61,18 @@
           <button data-view="front">正视</button><button data-view="side">侧视</button><button data-view="top">俯视</button>
         </div>
       </div>
+      <div class="quick-construction" role="toolbar" aria-label="画布快捷作图">
+        <button id="quickConnectSelected" disabled>连接已选两点</button>
+        <button id="quickMidpoint" disabled>中点</button>
+        <button id="quickDelete" disabled>删选中线</button>
+        <span id="quickStatus" role="status">左键选两个点 → 右键直接连接</span>
+      </div>
       <div class="canvas-wrap" id="canvasWrap">
         <svg id="geometryCanvas" role="img" aria-label="可旋转的立体几何图形"></svg>
-        <div class="axis-widget" aria-hidden="true"><span class="axis-z">z</span><span class="axis-y">y</span><span class="axis-x">x</span></div>
         <div class="hint"><span class="mouse-icon">↻</span>斜二测画法（45°固定视角）· 滚轮缩放 · 点击顶点选中</div>
         <div class="selection-status" id="selectionStatus">选择两个顶点，可作辅助线</div>
         <div class="connect-box"><input id="connectA" placeholder="点" maxlength="4" aria-label="第一个点字母"/><span>—</span><input id="connectB" placeholder="点" maxlength="4" aria-label="第二个点字母"/><button id="connectGo">连接</button></div>
-        <div class="relation-panel" id="relationPanel"></div>
+        <details class="relation-summary"><summary>线线关系 · 展开</summary><div class="relation-panel" id="relationPanel"></div></details>
       </div>
       <div class="stage-footer">
         <div><span class="dot blue"></span><span id="vertexCount">8 个顶点</span></div>
@@ -80,7 +90,7 @@
         <label><div><span class="tool-icon edges">╱</span><span><strong>棱线</strong><small>实线 / 虚线</small></span></div><input id="showEdges" type="checkbox" checked><i></i></label>
         <label><div><span class="tool-icon faces">◇</span><span><strong>面填充</strong><small>区分可见平面</small></span></div><input id="showFaces" type="checkbox" checked><i></i></label>
         <label><div><span class="tool-icon hidden">┄</span><span><strong>隐藏棱</strong><small>用虚线表示</small></span></div><input id="showHidden" type="checkbox" checked><i></i></label>
-        <label><div><span class="tool-icon grid">⌗</span><span><strong>参考坐标</strong><small>空间方向辅助</small></span></div><input id="showAxes" type="checkbox"><i></i></label>
+        <label><div><span class="tool-icon grid">⌗</span><span><strong>空间直角坐标系</strong><small>原点、坐标轴与刻度</small></span></div><input id="showAxes" type="checkbox" checked><i></i></label>
       </div>
 
       <div class="section-rule"></div>
@@ -95,7 +105,27 @@
         <button id="clearConstructions"><span class="construct-symbol">↺</span><span><strong>清除辅助构造</strong><small>恢复原始模型</small></span></button>
       </div>
 
+      <section class="measurement-card" id="solidMeasurements" aria-label="空间测量">
+        <span class="eyebrow">05 / 测量与推导</span><h3>空间角与距离</h3>
+        <select id="measurementKind" aria-label="测量类型">
+          <option value="">选择测量</option><option value="distance">线段长度</option>
+          <option value="lines">线线角（含异面直线）</option><option value="linePlane">线面角与正射影</option>
+          <option value="pointPlane">点到平面距离与垂足</option>
+        </select>
+        <div class="measurement-examples" id="measurementExamples">
+          <button data-example="linePlane">体对角线与底面</button><button data-example="pointPlane">顶点到底面</button><button data-example="lines">异面棱夹角</button>
+        </div>
+        <div class="measurement-fields" id="measurementFields" hidden></div>
+        <p class="measurement-result" id="measurementResult" role="status"></p>
+        <details id="measurementDerivation" hidden><summary>查看坐标与计算步骤</summary><pre id="measurementSteps"></pre></details>
+      </section>
       <div class="tip-card"><span>解题提示</span><p id="modelTip">旋转图形，观察平行棱与对角线的空间位置关系。</p></div>
+      <div class="study-card" id="solidStudy" aria-live="polite">
+        <span class="eyebrow">随参数变化的练习</span>
+        <h3 id="solidStudyTitle"></h3>
+        <p id="solidStudyQuestion"></p>
+        <details id="solidStudyDetails"><summary>查看公式与计算</summary><p id="solidStudyAnswer"></p></details>
+      </div>
     </aside>
   </main>
 
@@ -141,6 +171,12 @@
       <div class="calc-card"><strong>直线 L₁ 与 L₂</strong><div class="line-inputs"><label>A₂<input id="l2a" type="number" value="1" step="0.1"></label><label>B₂<input id="l2b" type="number" value="1" step="0.1"></label><label>C₂<input id="l2c" type="number" value="-4" step="0.1"></label></div><div class="calc-result" id="lineResults"></div></div>
       <div class="calc-card"><strong>画板对象求交</strong><div class="object-intersection"><select id="intersectionObjectA" aria-label="第一个画板对象"></select><select id="intersectionObjectB" aria-label="第二个画板对象"></select><button id="intersectObjects">求交并加点</button></div><div class="calc-result" id="objectIntersectionResult"></div></div>
       <div class="calc-card feature-card"><strong>曲线性质</strong><div class="calc-result" id="curveFeatures"></div></div>
+      <div class="study-card analytic-study" id="analyticStudy" aria-live="polite">
+        <span class="eyebrow">公式推导</span>
+        <h3 id="analyticStudyTitle"></h3>
+        <p id="analyticStudyQuestion"></p>
+        <details id="analyticStudyDetails"><summary>查看推导</summary><p id="analyticStudyAnswer"></p></details>
+      </div>
       <div class="calc-card"><strong>精确添加点</strong><div class="add-analytic-point"><input id="analyticPointName" value="A" maxlength="6" aria-label="点名称"><input id="analyticPointX" type="number" value="0" step="0.1" aria-label="点横坐标"><input id="analyticPointY" type="number" value="0" step="0.1" aria-label="点纵坐标"><button id="addAnalyticPoint">添加</button></div><div class="point-connect"><select id="segmentPointA" aria-label="线段第一个点"></select><span>—</span><select id="segmentPointB" aria-label="线段第二个点"></select><button id="addAnalyticSegment">连接线段</button></div></div>
     </aside>
   </main>
@@ -168,7 +204,7 @@
         <label>位置比例 t <input id="pointRatio" type="number" value="0.5" min="0" max="1" step="0.05" /></label>
       </div>
       <div id="coordinateFields" class="point-fields hidden">
-        <p>输入点在当前模型坐标系中的位置，可以继续选中它连接辅助线。</p>
+        <p>以底面中心为原点，x、y 轴在底面内，z 轴向上。输入坐标后可选中该点连接辅助线。</p>
         <div class="coord-grid"><label>x <input id="pointX" type="number" value="0" step="0.1" /></label><label>y <input id="pointY" type="number" value="0" step="0.1" /></label><label>z <input id="pointZ" type="number" value="0" step="0.1" /></label></div>
       </div>
       <label class="point-name">点名称 <input id="pointName" value="P" maxlength="8" /></label>
@@ -177,7 +213,11 @@
     </form>
   </dialog>
 
-  <script src="app.js?v=9"></script>
-  <script src="analytic.js?v=9"></script>
+  <script src="solid-math.js?v=1"></script>
+  <script src="app.js?v=14"></script>
+  <script src="measurements.js?v=1"></script>
+  <script src="analytic.js?v=10"></script>
+  <script src="wps-host.js?v=1"></script>
+  <script src="presentation.js?v=1"></script>
 </body>
 </html>

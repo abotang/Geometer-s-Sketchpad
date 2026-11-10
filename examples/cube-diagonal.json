@@ -1,0 +1,40 @@
+{
+  "version": 2,
+  "type": "solid-geometry-scene",
+  "key": "cube",
+  "params": {
+    "size": 4
+  },
+  "customModel": null,
+  "segments": [
+    [
+      "v0",
+      "v6"
+    ]
+  ],
+  "points": [],
+  "measurement": {
+    "kind": "linePlane",
+    "ids": [
+      "v0",
+      "v6",
+      "v0",
+      "v1",
+      "v3"
+    ]
+  },
+  "view": {
+    "rx": -1.222,
+    "ry": -0.7853981633974483,
+    "zoom": 1,
+    "projection": "perspective"
+  },
+  "display": {
+    "showVertices": true,
+    "showEdges": true,
+    "showFaces": true,
+    "showHidden": true,
+    "showAxes": true,
+    "axisVersion": 1
+  }
+}

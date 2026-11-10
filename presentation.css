@@ -1,0 +1,59 @@
+/* Fit the actual browser / WPS object viewport. Keep tools visible. */
+html,body{width:100%;height:100%;overflow:hidden}
+body{--header-height:82px;--host-height:0px;--tools-width:280px}
+body.wps-host{--host-height:44px}
+.workspace,.analytic-workspace,body.wps-host .workspace,body.wps-host .analytic-workspace{width:100%;height:calc(100% - var(--header-height) - var(--host-height));min-height:0;grid-template-columns:minmax(0,1fr) var(--tools-width);gap:12px;padding:12px}
+.stage-card,.canvas-wrap,.analytic-canvas-wrap{min-height:0!important}
+.stage-toolbar,.stage-footer,.analytic-footer,.quick-construction{flex-shrink:0}
+.panel{min-width:0;min-height:0;overscroll-behavior:contain}
+.topbar{position:relative;z-index:5;gap:12px}
+.mobile-only{display:inline-flex}
+#toolsDrawerBtn,.right-panel .panel-close,.analytic-right .panel-close{display:none!important}
+#presentationToggle{white-space:nowrap}
+.left-panel,.analytic-left{display:block;position:fixed;left:0;top:0;bottom:0;width:min(330px,86vw);max-height:none;z-index:22;border-radius:0;transform:translateX(-110%);transition:transform .2s}
+.left-panel.open,.analytic-left.open{transform:none}
+.right-panel,.analytic-right,.right-panel:hover,.analytic-right:hover,.right-panel:has(:focus-visible),.analytic-right:focus-within{position:static!important;width:auto!important;height:auto;max-height:none!important;transform:none!important;z-index:auto;border-radius:14px}
+.right-panel:before,.analytic-right:before{display:none}
+.drawer-overlay.show{display:block;z-index:21}
+.mode-switch{top:auto!important;bottom:9px!important}
+.stage-footer,.analytic-footer{height:78px;padding-bottom:34px}
+.relation-summary{position:absolute;top:56px;right:14px;z-index:3;max-width:236px;font-size:11px;background:rgba(255,255,250,.94);border:1px solid var(--line);border-radius:8px;box-shadow:0 4px 14px #1f2b3119}
+.relation-summary>summary{cursor:pointer;padding:8px 12px;color:var(--blue);font-weight:700}
+.relation-summary .relation-panel{position:static;box-shadow:none;border:0;width:234px;max-width:100%;max-height:min(250px,35vh);margin:0}
+.lecture-notice{position:fixed;bottom:90px;left:50%;transform:translateX(-50%);padding:12px 18px;background:#173f4c;color:white;border-radius:8px;max-width:85vw;font-size:13px;z-index:30}
+body.lecture-mode{--header-height:54px;--host-height:0px}
+.lecture-mode .wps-host-bar{display:none}
+.lecture-mode .topbar{height:54px;padding:0 12px}
+.lecture-mode .brand{display:none}
+.lecture-mode .top-actions{width:100%;justify-content:flex-end}
+.lecture-mode .top-actions .ghost{display:inline-flex}
+.lecture-mode .vertex-label{font-size:16px}
+.quick-construction{display:flex;align-items:center;flex-wrap:wrap;gap:6px;padding:8px 12px;border-bottom:1px solid var(--line);background:#f5f9f7}
+.quick-construction button{border:1px solid #bdd0d3;border-radius:6px;background:white;padding:7px 10px;cursor:pointer;font-size:12px;white-space:nowrap}
+.quick-construction button[aria-pressed=true]{background:#173f4c;color:white;border-color:#173f4c}
+.quick-construction button:disabled{opacity:.45;cursor:default}
+.quick-construction span{font-size:11px;color:#49646f}
+@media(max-width:1100px){
+  body{--tools-width:250px}
+  .brand p{display:none}.brand h1{font-size:16px}.brand-mark{display:none}
+  .topbar{padding:0 12px}.top-actions{gap:5px}.top-actions button{padding:9px;font-size:12px}
+}
+@media(max-width:760px){
+  body{--header-height:70px;--tools-width:220px}
+  .topbar{padding:0 8px;flex-wrap:wrap;align-content:center;gap:4px}
+  .brand{display:none}.top-actions{width:100%;justify-content:space-between;gap:4px}
+  .top-actions button{padding:8px 6px;font-size:11px}
+  .top-actions #presentationToggle{display:inline-flex}.stage-toolbar{height:auto;min-height:54px;padding:8px;gap:6px;flex-wrap:wrap}
+  .workspace,.analytic-workspace,body.wps-host .workspace,body.wps-host .analytic-workspace{padding:6px;gap:6px}
+  .right-panel,.analytic-right{padding:16px 12px}
+  .hint{white-space:normal;width:max-content;max-width:85%;text-align:center}
+  .relation-summary{right:10px;top:53px}.stage-footer{gap:6px;padding-left:8px;padding-right:8px}
+  .quick-construction{padding:6px;gap:4px}.quick-construction button{padding:6px;font-size:11px}.quick-construction span{flex-basis:100%}
+}
+@media(max-width:560px){
+  .workspace,.analytic-workspace,body.wps-host .workspace,body.wps-host .analytic-workspace{grid-template-columns:minmax(0,1fr);grid-template-rows:minmax(0,1fr) minmax(140px,34%);gap:6px}
+  .right-panel,.analytic-right{padding:12px;overflow:auto}
+  .stage-footer,.analytic-footer{height:42px;padding-bottom:0}
+  .mode-switch{bottom:calc(34% + 16px)!important;transform:translateX(-50%) scale(.85)}
+  .hint{display:none}
+}

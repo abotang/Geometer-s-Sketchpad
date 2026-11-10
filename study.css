@@ -1,0 +1,20 @@
+.study-card{margin-top:14px;padding:15px;border:1px solid #bfd7db;border-radius:10px;background:#eef7f6;color:#243b43}
+.study-card[hidden]{display:none}
+.study-card h3{margin:7px 0 6px;font:700 15px/1.4 Georgia,"Noto Serif SC",serif}
+.study-card p{margin:0;font-size:11px;line-height:1.7}
+.study-card details{margin-top:11px;border-top:1px solid #cbdfe0;padding-top:10px}
+.study-card summary{width:max-content;max-width:100%;cursor:pointer;color:#0b719b;font-size:11px;font-weight:700}
+.study-card details p{margin-top:9px;white-space:pre-line;overflow-wrap:anywhere;font-family:Georgia,"Noto Serif SC",serif}
+.study-card:focus-within{outline:2px solid #7bb5c3;outline-offset:2px}
+.analytic-study{margin-bottom:10px;background:#f4f1fa;border-color:#ded4ef}
+.analytic-study details{border-color:#e3daef}
+.analytic-study summary{color:#684a9e}
+.axis-line{stroke-width:1.4;opacity:.8;vector-effect:non-scaling-stroke;pointer-events:none}
+.axis-line.axis-positive{stroke-dasharray:none}
+.axis-line.axis-negative{stroke-dasharray:4 4;opacity:.5}
+.cartesian-tick{stroke-width:1;vector-effect:non-scaling-stroke;pointer-events:none}
+.cartesian-arrow,.coord-arrow{pointer-events:none}
+.cartesian-tick-label{font:10px Consolas,monospace;paint-order:stroke;stroke:#fff;stroke-width:3;stroke-linejoin:round;pointer-events:none}
+.axis-label,.axis-origin-label,.coord-label{font:700 13px Georgia,"Noto Serif SC",serif;paint-order:stroke;stroke:#fff;stroke-width:3;stroke-linejoin:round;pointer-events:none}
+.axis-origin-label{fill:#263940;font-size:11px}
+.coord-arrow,.coord-label{fill:#263940}

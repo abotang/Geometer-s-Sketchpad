@@ -1,0 +1,10 @@
+.wps-host-bar{height:44px;box-sizing:border-box;display:flex;align-items:center;gap:18px;padding:7px 22px;background:#173f4c;color:#fff;font:12px/1.4 "Microsoft YaHei",sans-serif}
+.wps-host-bar strong{white-space:nowrap;font-size:13px}
+.wps-host-bar span{opacity:.85;min-width:0}
+.wps-host-bar button{margin-left:auto;flex-shrink:0;border:1px solid #86b9c4;border-radius:6px;background:#fff;color:#173f4c;padding:6px 12px;cursor:pointer}
+.wps-host .mode-switch{top:64px}
+.wps-host .workspace,.wps-host .analytic-workspace{height:calc(100vh - 126px);min-height:0}
+.wps-host .canvas-wrap,.wps-host .analytic-canvas-wrap{min-height:220px}
+.wps-host .axis-origin-label{font-size:12px}
+@media(max-width:1100px){.wps-host .mode-switch{top:auto;bottom:10px}.wps-host-bar{padding:7px 12px;gap:10px}.wps-host-bar span{font-size:10px}}
+@media(max-width:760px){.wps-host .workspace,.wps-host .analytic-workspace{height:calc(100vh - 114px)}.wps-host .analytic-left,.wps-host .analytic-right{top:114px}.wps-host-bar span{display:none}.wps-host .topbar{padding:0 10px}}

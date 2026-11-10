@@ -1,0 +1,40 @@
+{
+  "version": 2,
+  "type": "analytic-geometry-scene",
+  "curve": "line",
+  "params": {
+    "A": 1,
+    "B": -1,
+    "C": 0
+  },
+  "range": 6,
+  "cx": 0,
+  "cy": 0,
+  "points": [],
+  "objects": [
+    {
+      "id": "c1",
+      "type": "circle",
+      "params": {
+        "h": 0,
+        "k": 0,
+        "r": 4
+      },
+      "color": "#0b719b",
+      "visible": true
+    },
+    {
+      "id": "c2",
+      "type": "line",
+      "params": {
+        "A": 1,
+        "B": -1,
+        "C": 0
+      },
+      "color": "#d0643b",
+      "visible": true
+    }
+  ],
+  "segments": [],
+  "seq": 2
+}

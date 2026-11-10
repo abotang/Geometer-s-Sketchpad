@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<customUI xmlns="http://schemas.microsoft.com/office/2006/01/customui" onLoad="OnGeometryLoad">
+  <ribbon startFromScratch="false">
+    <tabs>
+      <tab id="geometryLabTab" label="几何实验室">
+        <group id="geometryEmbedGroup" label="幻灯片内交互">
+          <button id="geometryFit" label="铺满选中对象" onAction="OnGeometryFit" screentip="选中已有几何网页，将位置归零并填满当前幻灯片"/>
+          <button id="geometryWidescreen" label="整份课件设为16:9" onAction="OnGeometryWidescreen" supertip="修改整份演示文稿的页面比例，适合16:9屏幕。会影响其他页的排版；设置后再点铺满选中对象。"/>
+          <button id="geometryInsert" label="插入当前幻灯片" size="large" onAction="OnGeometryInsert" screentip="将几何工具插入为 WPS 网页图形" supertip="在选中的幻灯片中插入可交互网页。需要当前 WPS 支持 AddWebShapeEx，播放时保持本机服务运行。"/>
+        </group>
+        <group id="geometryDialogGroup" label="独立交互窗口">
+          <button id="geometryOpen" label="打开交互窗口" onAction="OnGeometryOpen" screentip="在独立浮窗中操作几何模型"/>
+          <toggleButton id="geometryAutoOpen" label="放映时自动打开" getPressed="OnGeometryGetAuto" onAction="OnGeometryToggleAuto" screentip="开始放映时打开独立交互窗口，本次 WPS 会话有效"/>
+        </group>
+        <group id="geometryHelpGroup" label="帮助">
+          <button id="geometryHelp" label="使用说明" onAction="OnGeometryHelp"/>
+        </group>
+      </tab>
+    </tabs>
+  </ribbon>
+</customUI>
